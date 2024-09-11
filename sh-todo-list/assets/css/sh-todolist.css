@@ -1,0 +1,139 @@
+/**
+ * sh-todolist.css
+ * 
+ * CSS file for styling the to-do list plugin's frontend display. Includes
+ * styles for task listings, buttons, forms, and responsive adjustments.
+ * author: Shayan Ghiaseddin
+ * website: sghiaseddin.com
+ */
+ .sh-todo-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    width: 100%;
+    max-width: 1280px;
+}
+
+.sh-todo-wrapper>h2,.sh-todo-wrapper>p {
+    flex: 1
+}
+
+.sh-todo-wrapper a.button,
+a.button.goto-todolist-page {
+    background-color: var(--wp--preset--color--contrast);
+    color: var(--wp--preset--color--base);
+    padding: 5px 20px;
+    text-decoration: unset;
+    font-weight: 700;
+    border: 2px solid var(--wp--preset--color--contrast);
+    border-radius: 7px;
+    transition: 300ms
+}
+
+.sh-todo-wrapper a.button:hover,
+a.button.goto-todolist-page:hover {
+    background-color: var(--wp--preset--color--base);
+    color: var(--wp--preset--color--contrast);
+}
+
+.sh-todo-wrapper>.sh-todo-list {
+    flex: 1 1 100%
+}
+
+.sh-todo-list .sh-todo-list-header {
+    display: flex;
+    gap: 10px;
+    font-weight: 700;
+    border-bottom: 2px solid var(--wp--preset--color--contrast);
+    padding-bottom: 10px;
+    margin-bottom: 10px
+}
+
+.sh-todo-list-header>span:nth-child(1) {
+    flex: 1 1
+}
+
+.sh-todo-list-header>span:nth-child(2) {
+    flex: 2 2
+}
+
+.sh-todo-list-header>span:nth-child(3) {
+    width: 85px
+}
+
+.sh-todo-list .sh-todo-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px
+}
+
+.sh-todo-list .sh-task-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start
+}
+
+.sh-todo-list .sh-task-item:after {
+    content: "";
+    display: block;
+    width: 200px;
+    height: 2px;
+    background-color: var(--wp--preset--color--accent);
+    position: absolute;
+    transform: translate(-50%,-10px);
+    left: 50%
+}
+
+.sh-todo-list .sh-task-item:first-child:after {
+    display: none
+}
+
+.sh-todo-list-container .sh-task-title {
+    flex: 1 1
+}
+
+.sh-todo-list-container .sh-task-title>input {
+    width: calc(100% - 10px);
+    padding: 10px 5px;
+    border: 2px solid var(--wp--preset--color--accent);
+    font-family: inter
+}
+
+.sh-todo-list-container .sh-task-desc {
+    flex: 2 2
+}
+
+.sh-todo-list-container .sh-task-desc>textarea {
+    width: calc(100% - 10px);
+    padding: 10px 5px;
+    border: 2px solid var(--wp--preset--color--accent);
+    font-family: inter;
+    min-height: 100px
+}
+
+.sh-todo-list-container .sh-task-actions {
+    display: flex;
+    width: 85px;
+    gap: 5px
+}
+
+.sh-todo-wrapper .sh-task-actions a {
+    text-decoration: unset
+}
+
+.sh-todo-wrapper .sh-task-actions a:hover {
+    text-decoration: underline
+}
+
+.sh-todo-wrapper .sh-task-actions span {
+    font-size: 25px;
+    width: 25px
+}
+
+.long-desc:after {
+    content: "..."
+}
+
+.sh-todo-wrapper .sh-task-container {
+    flex: 1 1 100%
+}
