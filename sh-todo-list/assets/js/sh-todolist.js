@@ -64,12 +64,13 @@ jQuery(document).ready(function($) {
 
         // AJAX request to create task
         $.ajax({
-            url: ajaxurl, // WordPress AJAX URL
+            url: shTodoList.ajaxurl, // WordPress AJAX URL
             type: 'POST',
             data: {
                 action: 'create_task',
                 title: newTitle,
-                content: newDesc
+                content: newDesc,
+                _wpnonce: shTodoList.nonce
             },
             success: function(response) {
                 if (response.success) {
@@ -173,13 +174,14 @@ jQuery(document).ready(function($) {
 
         // AJAX request to update task
         $.ajax({
-            url: ajaxurl, // WordPress AJAX URL
+            url: shTodoList.ajaxurl,
             type: 'POST',
             data: {
                 action: 'update_task',
                 task_id: taskId,
                 title: newTitle,
-                description: newDesc
+                description: newDesc,
+                _wpnonce: shTodoList.nonce
             },
             success: function(response) {
                 if(response.success) {
@@ -226,11 +228,12 @@ jQuery(document).ready(function($) {
 
             // AJAX request to remove task
             $.ajax({
-                url: ajaxurl, // WordPress AJAX URL
+                url: shTodoList.ajaxurl,
                 type: 'POST',
                 data: {
                     action: 'remove_task',
-                    task_id: taskId
+                    task_id: taskId,
+                    _wpnonce: shTodoList.nonce
                 },
                 success: function(response) {
                     if(response.success) {

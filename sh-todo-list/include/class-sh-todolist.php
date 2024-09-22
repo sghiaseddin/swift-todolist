@@ -10,7 +10,7 @@
     public function __construct() {
         register_activation_hook(__FILE__, ['SH_TodoList_Activator', 'activate']);
         add_action('init', [$this, 'setup']);
-        add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
+        add_action('wp_enqueue_scripts', [$this, 'conditionally_enqueue_scripts']);
         $this->register_ajax_handlers();
     }
 
@@ -19,7 +19,7 @@
      */
     public function myaccount_dashboard_content() {
         // Add custom dashboard content. ?>
-        <a href="<?= esc_url(SH_TODOLIST_BASE_URL) ?>" class="button goto-todolist-page" style="margin-top: 40px;">Go your Todo List</a><?php
+        <a href="<?php echo esc_url(SH_TODOLIST_BASE_URL) ?>" class="button goto-todolist-page" style="margin-top: 40px;">Go your Todo List</a><?php
     }
 
     /**
@@ -29,6 +29,7 @@
         add_shortcode('sh_todolist', [$this, 'render_todolist']);
         $this->check_woocommerce();
         $this->register_task_post_type();
+        add_filter( 'query_vars', [$this, 'add_query_vars'] );
     }
 
     /**
@@ -63,11 +64,26 @@
     }
 
     /**
+     * Check if the plugin shortcode is used in the load.
+     *
+     * @return boolian 
+     */
+    public function conditionally_enqueue_scripts() {
+        // Check if the current page has the 'sh_todolist' shortcode.
+        if ( is_singular('task') || has_shortcode(get_post()->post_content, 'sh_todolist') ) {
+            $this->enqueue_scripts();
+        }
+    }
+
+    /**
      * Enqueue JavaScript and CSS files.
      */
     public function enqueue_scripts() {
         wp_enqueue_script('sh-todolist-js', plugin_dir_url(__FILE__) . '../assets/js/sh-todolist.js', ['jquery'], SH_TODOLIST_VERSION, true);
-        wp_localize_script('sh-todolist-js', 'shTodoList', ['ajaxurl' => admin_url('admin-ajax.php')]);
+        wp_localize_script('sh-todolist-js', 'shTodoList', array(
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce('sh_todolist_nonce')
+        ) );
         wp_enqueue_style('sh-todolist-css', plugin_dir_url(__FILE__) . '../assets/css/sh-todolist.css', [], SH_TODOLIST_VERSION);
         wp_enqueue_style( 'dashicons' );
     }
@@ -133,6 +149,19 @@
         register_post_type('task', $args);
     }
 
+
+    /**
+     * Add string query for task-actions.
+     *
+     * @return array query variables
+     */
+    public function add_query_vars( $vars ) {
+        $vars[] = "task-action";
+        $vars[] = "task-id";
+        return $vars;
+    }
+
+
     /**
      * Render the todo list for the current user.
      *
@@ -142,8 +171,8 @@
         ob_start();
 
         // Check if the action is to view a specific task
-        if (isset($_GET['action']) && $_GET['action'] === 'view' && isset($_GET['id'])) {
-            $task_id = intval($_GET['id']);
+        if ( get_query_var('task-action') && get_query_var('task-action') === 'view' && get_query_var('task-id') ) {
+            $task_id = intval( get_query_var('task-id') );
             $current_user = wp_get_current_user();
             $task = $this->get_task($current_user->ID, $task_id);
 
@@ -153,7 +182,7 @@
             } else { ?>
                 <div class="sh-todo-wrapper">
                     <p>Task not found or you do not have permission to view this task.</p>;
-                    <a class="button" href="<?= esc_url(SH_TODOLIST_BASE_URL) ?>">Go back to your Todo List</a>
+                    <a class="button" href="<?php echo esc_url(SH_TODOLIST_BASE_URL) ?>">Go back to your Todo List</a>
                 </div><?php
             }
             return ob_get_clean(); // Stop further execution to only show the task view
@@ -168,23 +197,20 @@
      * @param int $user_id User ID.
      */
     public function render_tasks($user_id) {
-        global $wpdb;
-        $tasks = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT p.ID AS id, p.post_title AS title, p.post_content AS content
-                FROM {$wpdb->prefix}posts AS p 
-                WHERE p.post_author = %d
-                AND p.post_status = 'publish'
-                AND p.post_type = 'task'
-                ORDER BY p.post_modified DESC;",
-                $user_id
-            ),
-            ARRAY_A
+        $args = array(
+            'post_type'   => 'task',
+            'post_status' => 'publish',
+            'author'      => $user_id,
+            'orderby'     => 'modified',
+            'order'       => 'DESC',
         );
-
-        include plugin_dir_path(__FILE__) . '../templates/todolist-template.php'; // Render tasks using a template file.
+    
+        $tasks_query = new WP_Query($args);
+        $tasks = $tasks_query->posts;
+    
+        include plugin_dir_path(__FILE__) . '../templates/todolist-template.php';
     }
-
+    
     /**
      * Retrieve a task for a specific user.
      *
@@ -193,26 +219,29 @@
      * @return array|null Task data, or null if not found.
      */
     public function get_task($user_id, $post_id) {
-        global $wpdb;
-
-        // Retrieve task from the database.
-        $task = $wpdb->get_row(
-            $wpdb->prepare(
-                "SELECT p.ID AS id, p.post_title AS title, p.post_content AS content
-                FROM {$wpdb->prefix}posts AS p 
-                WHERE p.post_author = %d
-                AND p.ID = %d
-                AND p.post_status = 'publish'
-                AND p.post_type = 'task'
-                ORDER BY p.post_modified DESC;",
-                $user_id, $post_id
-            ),
-            ARRAY_A
+        $args = array(
+            'post_type'   => 'task',
+            'post_status' => 'publish',
+            'author'      => $user_id,
+            'p'           => $post_id,
+            'posts_per_page' => 1,
         );
-
-        return $task;
+    
+        $query = new WP_Query($args);
+        if ($query->have_posts()) {
+            $query->the_post();
+            $task = array(
+                'id'      => get_the_ID(),
+                'title'   => get_the_title(),
+                'content' => get_the_content(),
+            );
+            wp_reset_postdata();
+            return $task;
+        }
+    
+        return false;
     }
-
+    
     /**
      * Render the task view.
      *

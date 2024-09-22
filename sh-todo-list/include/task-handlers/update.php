@@ -11,9 +11,14 @@ class SH_Update_Task {
     }
 
     public function update_task_callback() {
-        $task_id = intval($_POST['task_id']);
-        $new_title = sanitize_text_field($_POST['title']);
-        $new_desc = sanitize_textarea_field($_POST['description']);
+        // Verify the nonce
+        if ( ! isset($_POST['_wpnonce']) || ! wp_verify_nonce( sanitize_key( wp_unslash($_POST['_wpnonce']) ), 'sh_todolist_nonce') ) {
+            wp_send_json_error(['message' => 'Nonce verification failed! ' . sanitize_key( wp_unslash($_POST['_wpnonce']) ) ]);
+            wp_die();
+        }
+        $task_id = isset($_POST['task_id']) ? intval( sanitize_key( wp_unslash($_POST['task_id']) ) ) : '';
+        $new_title = isset($_POST['title']) ? sanitize_text_field( wp_unslash($_POST['title']) ) : '';
+        $new_desc = isset($_POST['content']) ? sanitize_textarea_field( wp_unslash($_POST['content']) ) : ' ';
         $current_user = wp_get_current_user();
 
         $updated = $this->update_task($current_user->ID, $task_id, $new_title, $new_desc);
@@ -28,19 +33,18 @@ class SH_Update_Task {
     }
 
     private function update_task($user_id, $post_id, $title, $content) {
-        global $wpdb;
-
-        $is_updated = $wpdb->query(
-            $wpdb->prepare(
-                "UPDATE {$wpdb->prefix}posts 
-                SET post_title = %s, post_content = %s 
-                WHERE ID = %d
-                AND post_author = %d
-                AND post_type = 'task'",
-                $title, $content, $post_id, $user_id
-            )
+        $task = $this->get_task($user_id, $post_id);
+        if (!$task) {
+            return false;
+        }
+    
+        $post_data = array(
+            'ID'           => $post_id,
+            'post_title'   => wp_strip_all_tags($title),
+            'post_content' => $content,
         );
-
-        return $is_updated;
+    
+        $is_updated = wp_update_post($post_data);
+        return $is_updated ? true : false;
     }
 }
