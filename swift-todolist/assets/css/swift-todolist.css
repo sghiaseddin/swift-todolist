@@ -1,12 +1,12 @@
 /**
- * sh-todolist.css
+ * swift-todolist.css
  * 
  * CSS file for styling the to-do list plugin's frontend display. Includes
  * styles for task listings, buttons, forms, and responsive adjustments.
  * author: Shayan Ghiaseddin
  * website: sghiaseddin.com
  */
- .sh-todo-wrapper {
+ .swift-todo-wrapper {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
@@ -14,11 +14,11 @@
     max-width: 1280px;
 }
 
-.sh-todo-wrapper>h2,.sh-todo-wrapper>p {
+.swift-todo-wrapper>h2,.swift-todo-wrapper>p {
     flex: 1
 }
 
-.sh-todo-wrapper a.button,
+.swift-todo-wrapper a.button,
 a.button.goto-todolist-page {
     background-color: var(--wp--preset--color--contrast);
     color: var(--wp--preset--color--base);
@@ -30,17 +30,17 @@ a.button.goto-todolist-page {
     transition: 300ms
 }
 
-.sh-todo-wrapper a.button:hover,
+.swift-todo-wrapper a.button:hover,
 a.button.goto-todolist-page:hover {
     background-color: var(--wp--preset--color--base);
     color: var(--wp--preset--color--contrast);
 }
 
-.sh-todo-wrapper>.sh-todo-list {
+.swift-todo-wrapper>.swift-todo-list {
     flex: 1 1 100%
 }
 
-.sh-todo-list .sh-todo-list-header {
+.swift-todo-list .swift-todo-list-header {
     display: flex;
     gap: 10px;
     font-weight: 700;
@@ -49,31 +49,31 @@ a.button.goto-todolist-page:hover {
     margin-bottom: 10px
 }
 
-.sh-todo-list-header>span:nth-child(1) {
+.swift-todo-list-header>span:nth-child(1) {
     flex: 1 1
 }
 
-.sh-todo-list-header>span:nth-child(2) {
+.swift-todo-list-header>span:nth-child(2) {
     flex: 2 2
 }
 
-.sh-todo-list-header>span:nth-child(3) {
+.swift-todo-list-header>span:nth-child(3) {
     width: 85px
 }
 
-.sh-todo-list .sh-todo-list-container {
+.swift-todo-list .swift-todo-list-container {
     display: flex;
     flex-direction: column;
     gap: 20px
 }
 
-.sh-todo-list .sh-task-item {
+.swift-todo-list .swift-task-item {
     display: flex;
     gap: 10px;
     align-items: flex-start
 }
 
-.sh-todo-list .sh-task-item:after {
+.swift-todo-list .swift-task-item:after {
     content: "";
     display: block;
     width: 200px;
@@ -84,26 +84,26 @@ a.button.goto-todolist-page:hover {
     left: 50%
 }
 
-.sh-todo-list .sh-task-item:first-child:after {
+.swift-todo-list .swift-task-item:first-child:after {
     display: none
 }
 
-.sh-todo-list-container .sh-task-title {
+.swift-todo-list-container .swift-task-title {
     flex: 1 1
 }
 
-.sh-todo-list-container .sh-task-title>input {
+.swift-todo-list-container .swift-task-title>input {
     width: calc(100% - 10px);
     padding: 10px 5px;
     border: 2px solid var(--wp--preset--color--accent);
     font-family: inter
 }
 
-.sh-todo-list-container .sh-task-desc {
+.swift-todo-list-container .swift-task-desc {
     flex: 2 2
 }
 
-.sh-todo-list-container .sh-task-desc>textarea {
+.swift-todo-list-container .swift-task-desc>textarea {
     width: calc(100% - 10px);
     padding: 10px 5px;
     border: 2px solid var(--wp--preset--color--accent);
@@ -111,21 +111,21 @@ a.button.goto-todolist-page:hover {
     min-height: 100px
 }
 
-.sh-todo-list-container .sh-task-actions {
+.swift-todo-list-container .swift-task-actions {
     display: flex;
     width: 85px;
     gap: 5px
 }
 
-.sh-todo-wrapper .sh-task-actions a {
+.swift-todo-wrapper .swift-task-actions a {
     text-decoration: unset
 }
 
-.sh-todo-wrapper .sh-task-actions a:hover {
+.swift-todo-wrapper .swift-task-actions a:hover {
     text-decoration: underline
 }
 
-.sh-todo-wrapper .sh-task-actions span {
+.swift-todo-wrapper .swift-task-actions span {
     font-size: 25px;
     width: 25px
 }
@@ -134,6 +134,6 @@ a.button.goto-todolist-page:hover {
     content: "..."
 }
 
-.sh-todo-wrapper .sh-task-container {
+.swift-todo-wrapper .swift-task-container {
     flex: 1 1 100%
 }

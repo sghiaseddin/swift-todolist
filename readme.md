@@ -1,4 +1,4 @@
-# SH Todo List
+# SWIFT Todo List
 
 A simple and customizable to-do list plugin for WordPress. This plugin allows users to create, update, view, and delete tasks directly from their WordPress site.
 
@@ -19,13 +19,13 @@ A simple and customizable to-do list plugin for WordPress. This plugin allows us
 2. **From Source**:
    - Clone the repository to your `wp-content/plugins` directory:
      ```bash
-     git clone https://github.com/your-username/sh-todolist.git
+     git clone https://github.com/sghiaseddin/swift-todolist.git
      ```
    - Activate the plugin from the WordPress admin panel.
 
 ## Usage
 
-- Use the `[sh_todolist]` shortcode on any page or post to display the to-do list interface.
+- Use the `[swift_todolist]` shortcode on any page or post to display the to-do list interface.
 - Tasks can be managed directly from the user's account.
 
 ## Development

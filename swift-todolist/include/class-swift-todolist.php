@@ -1,14 +1,14 @@
 <?php
 /**
- * SH_TodoList
+ * SWIFT_TodoList
  * 
  * Main plugin class that initializes the setup, registers hooks, shortcodes,
  * custom post types, and manages script and style enqueues.
  */
 
- class SH_TodoList {
+ class SWIFT_TodoList {
     public function __construct() {
-        register_activation_hook(__FILE__, ['SH_TodoList_Activator', 'activate']);
+        register_activation_hook(__FILE__, ['SWIFT_TodoList_Activator', 'activate']);
         add_action('init', [$this, 'setup']);
         add_action('wp_enqueue_scripts', [$this, 'conditionally_enqueue_scripts']);
         $this->register_ajax_handlers();
@@ -19,17 +19,19 @@
      */
     public function myaccount_dashboard_content() {
         // Add custom dashboard content. ?>
-        <a href="<?php echo esc_url(SH_TODOLIST_BASE_URL) ?>" class="button goto-todolist-page" style="margin-top: 40px;">Go your Todo List</a><?php
+        <a href="<?php echo esc_url(SWIFT_TODOLIST_BASE_URL) ?>" class="button goto-todolist-page" style="margin-top: 40px;">Go your Todo List</a><?php
     }
 
     /**
      * Register the shortcodes and other setups.
      */
     public function setup() {
-        add_shortcode('sh_todolist', [$this, 'render_todolist']);
+        add_shortcode('swift_todolist', [$this, 'render_todolist']);
         $this->check_woocommerce();
         $this->register_task_post_type();
+        $this->register_assets();
         add_filter( 'query_vars', [$this, 'add_query_vars'] );
+        
     }
 
     /**
@@ -38,92 +40,116 @@
      */
     public function check_woocommerce() {
         if (class_exists('WooCommerce')) {
-            // WooCommerce is installed, redirect requests for the [sh_todolist] page to the WooCommerce login page.
+            // WooCommerce is installed, redirect requests for the [swift_todolist] page to the WooCommerce login page.
             add_filter('template_redirect', function () {
-                if (is_page() && has_shortcode(get_post()->post_content, 'sh_todolist') && !is_user_logged_in()) {
+                if (is_page() && has_shortcode(get_post()->post_content, 'swift_todolist') && !is_user_logged_in()) {
                     // Redirect to WooCommerce login/registration page
                     wp_redirect(wc_get_page_permalink('myaccount') . '?redirect_to=' . urlencode(get_permalink()));
                     exit;
                 }
             });
             // Set the dynamic WooCommerce login URL
-            define('SH_TODOLIST_LOGIN_URL', wc_get_page_permalink('myaccount'));
+            define('SWIFT_TODOLIST_LOGIN_URL', wc_get_page_permalink('myaccount'));
             add_action( 'woocommerce_account_dashboard', [$this, 'myaccount_dashboard_content'], 5 );
         } else {
             // WooCommerce is not installed, use the standard WordPress login page.
             add_filter('template_redirect', function () {
-                if (is_page() && has_shortcode(get_post()->post_content, 'sh_todolist') && !is_user_logged_in()) {
+                if (is_page() && has_shortcode(get_post()->post_content, 'swift_todolist') && !is_user_logged_in()) {
                     // Redirect to WordPress login page
                     wp_redirect(wp_login_url(get_permalink()));
                     exit;
                 }
             });
             // Set the dynamic WordPress login URL
-            define('SH_TODOLIST_LOGIN_URL', wp_login_url());
+            define('SWIFT_TODOLIST_LOGIN_URL', wp_login_url());
         }
     }
 
-    /**
-     * Check if the plugin shortcode is used in the load.
-     *
-     * @return boolian 
-     */
-    public function conditionally_enqueue_scripts() {
-        // Check if the current page has the 'sh_todolist' shortcode.
-        if ( is_singular('task') || has_shortcode(get_post()->post_content, 'sh_todolist') ) {
-            $this->enqueue_scripts();
-        }
-    }
+/**
+ * 
+ * Register JavaScript and CSS files.
+ */
+public function register_assets() {
+    // Register the script with WordPress
+    wp_register_script('swift-todolist', plugin_dir_url(__FILE__) . '../assets/js/swift-todolist.js', ['jquery'], SWIFT_TODOLIST_VERSION, true);
+    
+    // Register the style with WordPress
+    wp_register_style('swift-todolist', plugin_dir_url(__FILE__) . '../assets/css/swift-todolist.css', [], SWIFT_TODOLIST_VERSION);
+    
+    // Register the dashicons style with WordPress
+    wp_register_style('dashicons', plugin_dir_url(__FILE__) . '../assets/css/dashicons.css', [], SWIFT_TODOLIST_VERSION);
+}
 
-    /**
-     * Enqueue JavaScript and CSS files.
-     */
-    public function enqueue_scripts() {
-        wp_enqueue_script('sh-todolist-js', plugin_dir_url(__FILE__) . '../assets/js/sh-todolist.js', ['jquery'], SH_TODOLIST_VERSION, true);
-        wp_localize_script('sh-todolist-js', 'shTodoList', array(
-            'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce'   => wp_create_nonce('sh_todolist_nonce')
-        ) );
-        wp_enqueue_style('sh-todolist-css', plugin_dir_url(__FILE__) . '../assets/css/sh-todolist.css', [], SH_TODOLIST_VERSION);
-        wp_enqueue_style( 'dashicons' );
+/**
+ * Check if the plugin shortcode is used in the load.
+ *
+ * @return boolian 
+ */
+public function conditionally_enqueue_scripts() {
+    // Check if the current page has the 'swift_todolist' shortcode.
+    if (is_singular('swifttask') || has_shortcode(get_post()->post_content, 'swift_todolist')) {
+        $this->enqueue_scripts();
     }
+}
+
+/**
+ * 
+ * Enqueue JavaScript and CSS files.
+ */
+public function enqueue_scripts() {
+    // Localize the script with custom variables
+    wp_localize_script('swift-todolist', 'swiftTodoList', array(
+        'ajaxurl' => admin_url('admin-ajax.php'),
+        'swiftTodolistBase' => esc_html(SWIFT_TODOLIST_BASE_URL),
+        'nonce'   => wp_create_nonce('swift_todolist_nonce')
+    ) );
+    
+    // Enqueue the script with WordPress
+    wp_enqueue_script('swift-todolist');
+    
+    // Enqueue the style with WordPress
+    wp_enqueue_style('swift-todolist');
+    
+    // Enqueue the dashicons style with WordPress
+    wp_enqueue_style('dashicons');
+}
 
     /**
      * Register the 'task' custom post type for the To-Do List plugin.
      */
     public function register_task_post_type() {
         $labels = array(
-            'name'               => _x('Tasks', 'post type general name', 'sh-todolist'),
-            'singular_name'      => _x('Task', 'post type singular name', 'sh-todolist'),
-            'menu_name'          => _x('Tasks', 'admin menu', 'sh-todolist'),
-            'name_admin_bar'     => _x('Task', 'add new on admin bar', 'sh-todolist'),
-            'add_new'            => _x('Add New', 'task', 'sh-todolist'),
-            'add_new_item'       => __('Add New Task', 'sh-todolist'),
-            'new_item'           => __('New Task', 'sh-todolist'),
-            'edit_item'          => __('Edit Task', 'sh-todolist'),
-            'view_item'          => __('View Task', 'sh-todolist'),
-            'all_items'          => __('All Tasks', 'sh-todolist'),
-            'search_items'       => __('Search Tasks', 'sh-todolist'),
-            'parent_item_colon'  => __('Parent Tasks:', 'sh-todolist'),
-            'not_found'          => __('No tasks found.', 'sh-todolist'),
-            'not_found_in_trash' => __('No tasks found in Trash.', 'sh-todolist')
+            'name'               => _x('Tasks', 'post type general name', 'swift-todolist'),
+            'singular_name'      => _x('Task', 'post type singular name', 'swift-todolist'),
+            'menu_name'          => _x('Tasks', 'admin menu', 'swift-todolist'),
+            'name_admin_bar'     => _x('Task', 'add new on admin bar', 'swift-todolist'),
+            'add_new'            => _x('Add New', 'swifttask', 'swift-todolist'),
+            'add_new_item'       => __('Add New Task', 'swift-todolist'),
+            'new_item'           => __('New Task', 'swift-todolist'),
+            'edit_item'          => __('Edit Task', 'swift-todolist'),
+            'view_item'          => __('View Task', 'swift-todolist'),
+            'all_items'          => __('All Tasks', 'swift-todolist'),
+            'search_items'       => __('Search Tasks', 'swift-todolist'),
+            'parent_item_colon'  => __('Parent Tasks:', 'swift-todolist'),
+            'not_found'          => __('No tasks found.', 'swift-todolist'),
+            'not_found_in_trash' => __('No tasks found in Trash.', 'swift-todolist')
         );
     
         $capabilities = array(
-            'edit_post'          => 'edit_task',
-            'read_post'          => 'read_task',
-            'delete_post'        => 'delete_task',
-            'edit_posts'         => 'edit_tasks',
-            'edit_others_posts'  => 'edit_others_tasks',
-            'publish_posts'      => 'publish_tasks',
-            'read_private_posts' => 'read_private_tasks',
-            'delete_posts'       => 'delete_tasks',
-            'delete_private_posts' => 'delete_private_tasks',
-            'delete_published_posts' => 'delete_published_tasks',
-            'delete_others_posts' => 'delete_others_tasks',
-            'edit_private_posts' => 'edit_private_tasks',
-            'edit_published_posts' => 'edit_published_tasks',
-            'create_posts'       => 'create_tasks', // For Gutenberg
+            'edit_post'          => 'edit_swifttask',
+            'read_post'          => 'read_swifttask',
+            'delete_post'        => 'delete_swifttask',
+            'edit_posts'         => 'edit_swifttasks',
+            'edit_others_posts'  => 'edit_others_swifttasks',
+            'publish_posts'      => 'publish_swifttasks',
+            'read_private_posts' => 'read_private_swifttasks',
+            'delete_posts'       => 'delete_swifttasks',
+            'delete_private_posts' => 'delete_private_swifttasks',
+            'delete_published_posts' => 'delete_published_swifttasks',
+            'delete_others_posts' => 'delete_others_swifttasks',
+            'edit_private_posts' => 'edit_private_swifttasks',
+            'edit_published_posts' => 'edit_published_swifttasks',
+            'create_posts'       => 'create_swifttasks', // For Gutenberg
         );
     
         $args = array(
@@ -133,8 +159,8 @@
             'show_ui'             => true,
             'show_in_menu'        => true,
             'query_var'           => true,
-            'rewrite'             => array('slug' => 'task'),
-            'capability_type'     => array('task', 'tasks'),
+            'rewrite'             => array('slug' => 'swifttask'),
+            'capability_type'     => array('swifttask', 'swifttasks'),
             'capabilities'        => $capabilities,
             'map_meta_cap'        => true, // Use the custom capabilities defined above
             'has_archive'         => false,
@@ -146,7 +172,7 @@
             'menu_icon'           => 'dashicons-editor-ul', // Set dashicon
         );
     
-        register_post_type('task', $args);
+        register_post_type('swifttask', $args);
     }
 
 
@@ -180,9 +206,9 @@
             if ($task) {
                 include plugin_dir_path(__FILE__) . '../templates/task-template.php';
             } else { ?>
-                <div class="sh-todo-wrapper">
-                    <p>Task not found or you do not have permission to view this task.</p>;
-                    <a class="button" href="<?php echo esc_url(SH_TODOLIST_BASE_URL) ?>">Go back to your Todo List</a>
+                <div class="swift-todo-wrapper">
+                    <p><?php echo esc_html__('Task not found or you do not have permission to view this task.', 'swift-todolist'); ?></p>;
+                    <a class="button" href="<?php echo esc_url(SWIFT_TODOLIST_BASE_URL) ?>"><?php echo esc_html__('Go back to your Todo List', 'swift-todolist'); ?></a>
                 </div><?php
             }
             return ob_get_clean(); // Stop further execution to only show the task view
@@ -198,7 +224,7 @@
      */
     public function render_tasks($user_id) {
         $args = array(
-            'post_type'   => 'task',
+            'post_type'   => 'swifttask',
             'post_status' => 'publish',
             'author'      => $user_id,
             'orderby'     => 'modified',
@@ -220,7 +246,7 @@
      */
     public function get_task($user_id, $post_id) {
         $args = array(
-            'post_type'   => 'task',
+            'post_type'   => 'swifttask',
             'post_status' => 'publish',
             'author'      => $user_id,
             'p'           => $post_id,
@@ -256,7 +282,7 @@
     }
 
     private function register_ajax_handlers() {
-        require_once plugin_dir_path(__FILE__) . 'class-sh-ajax-handler.php';
-        new SH_Ajax_Handler();
+        require_once plugin_dir_path(__FILE__) . 'class-swift-ajax-handler.php';
+        new SWIFT_Ajax_Handler();
     }
 }
