@@ -2,7 +2,7 @@
 /*
 Plugin Name: Swift Todo List
 Description: A simple supercharged todo list plugin with create, update, and remove functionality.
-Version: 0.1.1
+Version: 0.1.2
 Author: Shayan Ghiaseddin
 Website: sghiaseddin.com
 License: GPLv2 or later
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 
 define('SWIFT_TODOLIST_BASE_SLUG', 'swift_todolist');
 define('SWIFT_TODOLIST_BASE_URL', site_url('/' . SWIFT_TODOLIST_BASE_SLUG)); // Define the base URL of the Todo List page
-define('SWIFT_TODOLIST_VERSION', '0.1.1'); 
+define('SWIFT_TODOLIST_VERSION', '0.1.2'); 
 
 // Include required files
 require_once plugin_dir_path(__FILE__) . 'activate.php';

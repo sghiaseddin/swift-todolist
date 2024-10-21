@@ -19,7 +19,7 @@
      */
     public function myaccount_dashboard_content() {
         // Add custom dashboard content. ?>
-        <a href="<?php echo esc_url(SWIFT_TODOLIST_BASE_URL) ?>" class="button goto-todolist-page" style="margin-top: 40px;">Go your Todo List</a><?php
+        <a href="<?php echo esc_url(SWIFT_TODOLIST_BASE_URL) ?>" class="button goto-todolist-page" style="margin-top: 40px;"><?php echo esc_html__('Go to Your Todo List', 'swift-todolist'); ?></a><?php
     }
 
     /**

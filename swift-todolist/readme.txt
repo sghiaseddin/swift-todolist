@@ -4,7 +4,7 @@ Donate link: https://sghiaseddin.com
 Tags: todo, tasks, task management, woocommerce, shortcode
 Requires at least: 5.0
 Tested up to: 6.6
-Stable tag: 0.1.1
+Stable tag: 0.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,7 +21,7 @@ Swift Todo List is a WordPress plugin that provides a straightforward and user-f
 - AJAX functionality for creating, updating, and removing tasks without page reload.
 - User roles management, allowing subscribers and customers to manage their own tasks.
 
-Use the `[sh_todolist]` shortcode on any page or post to display the task management interface.
+Use the `[swift_todolist]` shortcode on any page or post to display the task management interface.
 
 == Installation ==
 
@@ -32,14 +32,14 @@ Use the `[sh_todolist]` shortcode on any page or post to display the task manage
 
 == Usage ==
 
-- Use the `[sh_todolist]` shortcode on any page or post to display the to-do list interface.
+- Use the `[swift_todolist]` shortcode on any page or post to display the to-do list interface.
 - Tasks can be managed directly from the user's account.
 
 == Frequently Asked Questions ==
 
 = How do I display the to-do list on my site? =
 
-You can display the to-do list by using the `[sh_todolist]` shortcode on any page or post.
+You can display the to-do list by using the `[swift_todolist]` shortcode on any page or post.
 
 = Does this plugin integrate with WooCommerce? =
 
@@ -50,6 +50,9 @@ Yes, the plugin uses WooCommerce to ensure that tasks are linked to users who ar
 This plugin, all included libraries, and any other included assets are licensed as GPL or are under a GPL-compatible license.
 
 == Changelog ==
+
+= 0.1.2 =
+* fixed issues with escaping functions
 
 = 0.1.1 =
 * reviewed by wordpress team

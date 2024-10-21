@@ -14,10 +14,10 @@ if (!defined('ABSPATH')) {
 $current_user = wp_get_current_user();
 if ( $current_user->ID == 0 ) { ?>
     <p><?php echo esc_html__("You don't have access to the page, please log in.", 'swift-todolist');?></p>
-    <a class="button log-in" href="<?php echo esc_html(SWIFT_TODOLIST_LOGIN_URL) ?>"><?php echo esc_html__('Login/Register', 'swift-todolist');?></a><?php
+    <a class="button log-in" href="<?php echo esc_url(SWIFT_TODOLIST_LOGIN_URL) ?>"><?php echo esc_html__('Login/Register', 'swift-todolist');?></a><?php
 } else if ( ! $task ) { ?>
     <p><?php echo esc_html__('There is no task here.', 'swift-todolist');?></p>
-    <a class="button" href="/prototype/todo/my-account/todolist/"><?php echo esc_html__('Go back to your Todo List', 'swift-todolist');?></a><?php
+    <a class="button" href="<?php echo esc_url(SWIFT_TODOLIST_BASE_URL) ?>"><?php echo esc_html__('Go back to your Todo List', 'swift-todolist');?></a><?php
 } else { ?>
     <h2><?php echo esc_html($task['title']) ?></h2>
     <div class="swift-task-actions"></div>
